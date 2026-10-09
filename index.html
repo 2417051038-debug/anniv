@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1226">
+<title>3 tahun Nandini & Jona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#1d1226;--bg2:#2a1a38;--rose:#ff8fab;--blush:#ffe3ea;--gold:#f2c879;--muted:#b9a3c4;--green:#6ee7a0;
+    --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--blush);font-family:var(--sans);line-height:1.6;max-width:480px;margin:0 auto;overflow-x:hidden}
+  body.locked{height:100svh;overflow:hidden}
+
+  /* Intro + game */
+  #intro{position:fixed;inset:0;z-index:50;background:radial-gradient(circle at 50% 40%,#3a2150,#150c1d 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;
+    transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
+  #intro.open{transform:translateY(-100%)}
+  #bukaan{display:flex;flex-direction:column;align-items:center;gap:28px}
+  #bukaan p{font-family:var(--serif);font-style:italic;font-size:1.35rem;max-width:16em}
+  #bukaan small{color:var(--muted);font-size:.85rem}
+  #seal{width:116px;height:116px;border-radius:50%;border:0;cursor:pointer;color:#fff;font-size:2.6rem;
+    background:radial-gradient(circle at 35% 30%,#ff9db5,#d63a63 70%);
+    box-shadow:0 0 0 10px rgba(255,143,171,.12),0 14px 40px rgba(214,58,99,.45);animation:beat 1.8s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+  #game{position:absolute;inset:0;display:none;flex-direction:column;text-align:center;
+    padding:calc(22px + env(safe-area-inset-top,0px)) 0 calc(10px + env(safe-area-inset-bottom,0px))}
+  #game.on{display:flex}
+  #gameJudul{font-family:var(--serif);font-style:italic;font-size:1.05rem;padding:0 28px}
+  #hud{display:flex;justify-content:space-between;align-items:center;padding:10px 26px 0;
+    font-family:var(--serif);font-weight:600;font-size:1.5rem;font-variant-numeric:tabular-nums}
+  #skor{color:var(--green)}
+  #nyawa{font-size:1.2rem;letter-spacing:2px}
+  #bar{margin:8px 26px 0;height:6px;border-radius:6px;background:var(--bg2);overflow:hidden}
+  #barIsi{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .2s}
+  #toast{height:26px;margin-top:8px;font-size:.92rem;color:var(--blush);opacity:0;transition:opacity .2s}
+  #toast.show{opacity:1}
+  #cv{flex:1;width:100%;min-height:0;touch-action:none;cursor:grab}
+  #gagal{position:absolute;inset:0;background:rgba(21,12,29,.9);display:none;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;padding:32px}
+  #gagal.on{display:flex}
+  #gagal p{font-family:var(--serif);font-size:1.3rem;max-width:14em}
+  .tbl{border:0;border-radius:999px;padding:12px 26px;font:500 1rem var(--sans);cursor:pointer;background:var(--rose);color:#2a0f1b}
+  .tbl.ghost{background:none;color:var(--muted);text-decoration:underline}
+
+  /* Hero */
+  .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+    padding:72px 24px 48px;background:radial-gradient(ellipse at 50% 0%,#43265c 0%,transparent 65%)}
+  .hero .tahun{font-family:var(--serif);font-size:7.5rem;line-height:.9;font-weight:600;color:var(--rose)}
+  .hero .tahun-ket{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--gold);margin-top:6px}
+  .hero h1{font-family:var(--serif);font-weight:500;font-size:2.1rem;line-height:1.15;margin:36px 0 10px}
+  .hero h1 em{font-style:italic;color:var(--rose);padding:0 .1em}
+  .hero .sub{color:var(--muted);max-width:19em}
+  .counter{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-top:40px}
+  .counter div{background:var(--bg2);border-radius:16px;padding:14px 4px}
+  .counter b{display:block;font-family:var(--serif);font-size:1.6rem;font-weight:600;font-variant-numeric:tabular-nums}
+  .counter span{font-size:.75rem;color:var(--muted)}
+  .counter-ket{margin-top:12px;font-size:.85rem;color:var(--muted)}
+
+  /* Foto */
+  section{padding:64px 22px}
+  h2{font-family:var(--serif);font-weight:500;font-size:1.7rem;line-height:1.2;margin-bottom:28px}
+  .foto{margin-bottom:34px}
+  .foto:nth-child(odd){transform:rotate(-1.2deg)}
+  .foto:nth-child(even){transform:rotate(1.2deg)}
+  .bingkai{background:var(--blush);padding:10px 10px 14px;border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+  .bingkai img,.bingkai .kosong{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:3px}
+  .bingkai .kosong{background:linear-gradient(135deg,#5b3a78,#c2506f);display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:.85rem;text-align:center;padding:16px}
+  .bingkai figcaption{color:#3b2447;font-family:var(--serif);font-style:italic;text-align:center;padding-top:10px;font-size:1.02rem}
+
+  /* Surat */
+  .surat{background:var(--bg2);margin:0 16px;border-radius:22px;padding:36px 26px;border:1px solid rgba(242,200,121,.25)}
+  .surat h2{color:var(--gold);margin-bottom:20px}
+  .surat p{margin-bottom:16px;font-family:var(--serif);font-size:1.08rem;line-height:1.75}
+  .surat p.ps{color:var(--muted);font-size:1rem;border-top:1px dashed rgba(255,227,234,.2);padding-top:16px;margin-top:22px}
+  .ttd{text-align:right;margin-top:28px;font-family:var(--serif)}
+  .ttd span{display:block;font-style:italic;color:var(--muted);font-size:.95rem}
+  .ttd b{font-size:1.6rem;font-weight:600;font-style:italic;color:var(--rose)}
+  .kami{width:150px;margin:0 0 18px auto;transform:rotate(2deg)}
+  .kami .bingkai{padding:6px 6px 8px}
+  .kami .bingkai img,.kami .kosong{aspect-ratio:1/1}
+  footer{text-align:center;padding:48px 24px 110px;color:var(--muted);font-size:.85rem}
+
+  /* Musik */
+  #musik{position:fixed;right:max(16px,calc(50vw - 224px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;
+    width:52px;height:52px;border-radius:50%;border:0;background:var(--rose);font-size:1.3rem;cursor:pointer;
+    box-shadow:0 8px 22px rgba(0,0,0,.45);display:none}
+  #musik.tampil{display:block}
+  @media (prefers-reduced-motion:reduce){#seal{animation:none}#intro{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body class="locked">
+
+<div id="intro">
+  <div id="bukaan">
+    <p id="introTeks"></p>
+    <button id="seal" aria-label="Mulai">♥</button>
+    <small>Tap hatinya. Nyalain suara dulu yeeee.</small>
+  </div>
+  <div id="game">
+    <p id="gameJudul"></p>
+    <div id="hud"><span id="skor">0/10</span><span id="nyawa"></span></div>
+    <div id="bar"><i id="barIsi"></i></div>
+    <div id="toast"></div>
+    <canvas id="cv"></canvas>
+    <div id="gagal">
+      <p id="gagalTeks"></p>
+      <button class="tbl" id="ulang">Coba lagi</button>
+      <button class="tbl ghost" id="skip" style="display:none">skip aja</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <div class="tahun">3</div>
+    <div class="tahun-ket">tahun barengggg</div>
+    <h1 id="judul"></h1>
+    <p class="sub" id="sub"></p>
+    <div class="counter">
+      <div><b id="cHari">0</b><span>hari</span></div>
+      <div><b id="cJam">0</b><span>jam</span></div>
+      <div><b id="cMenit">0</b><span>menit</span></div>
+      <div><b id="cDetik">0</b><span>detik</span></div>
+    </div>
+    <p class="counter-ket" id="ketCounter"></p>
+  </header>
+
+  <section>
+    <h2>Highlight 3 tahun kalian</h2>
+    <div id="galeri"></div>
+  </section>
+
+  <section style="padding-top:8px">
+    <article class="surat">
+      <h2 id="suratJudul"></h2>
+      <div id="suratIsi"></div>
+      <div class="ttd">
+        <div class="kami"><div class="bingkai"><img id="fotoKami" alt="Mei & Sultan"></div></div>
+        <span>dari kami,</span><b id="pengirim"></b>
+      </div>
+    </article>
+  </section>
+  <footer id="footer"></footer>
+</main>
+
+<button id="musik" aria-label="Putar atau jeda lagu">🎵</button>
+<audio id="lagu" loop preload="auto"></audio>
+
+<script>
+/* ===================== EDIT BAGIAN INI ===================== */
+const TARGET = 10;   // jumlah green flag yang harus ditangkap
+
+const CONFIG = {
+  nama1: "Nandini",
+  nama2: "Jona",
+  tanggalJadian: "2023-10-09",     // GANTI ke tanggal jadian asli (TAHUN-BULAN-TANGGAL)
+  pengirim: "Mei & Sultan",
+  lagu: "lagu.mp3",
+
+  foto: [                           // folder foto/mereka
+    { src: "foto/mereka/1.jpg", caption: "Tiga tahun, belum bosen" },
+    { src: "foto/mereka/2.jpg", caption: "Duo yang susah dipisahin" },
+    { src: "foto/mereka/3.jpg", caption: "Secukupnya, tapi selalu cukup" },
+    { src: "foto/mereka/4.jpg", caption: "couple gemezzz" }
+  ],
+  fotoKami: "foto/kami/kami.jpg",
+
+  // Suara Mei (temen dari awal)
+  pesan: [
+    "Nandini, Jona, happy 3 tahun! gua rasa gua jadi saksi dari awal kalian mulai, dari era saling ngasih bekeeell sampee sekarang udah kayak sepasang seepatu super. Jujur, kadang liat kalian tuh bikin guaa mikir, oh ternyata yang kayak gini tuh ada.",
+    "Kalian bukan couple yang sempurna, dan itu justru poinnya. Kalian mau jalan bareng, ngobrol, dan beresin semuanya berdua. Real talk, itu jarang banget.",
+    "Semoga tahun ke-4, 5, dan seterusnya makin santai, makin seru, dan kalian tetep jadi tempat pulang satu sama lain. jgn baper ya, guaa emg sweet."
+  ],
+  // Catatan Sultan
+  pesanSultan: "P.S. dari Sultan: guaa baru gabung 2 tahun lewat Mei, tapi dari yang gua liat, kalian emang solid. Congrats ya! Traktirannya kapan nih? 😆"
+};
+
+// Teks di game
+const GREEN = ["selalu bales chat","traktir makan","dengerin curhat sampe habis","nemenin walau capek","inget hal-hal kecil","nggak ghosting","support semua rencana","sabar pas lagi ribet","jadi tempat pulang","bilang 'sini aku bantu'"];
+const RED = ["ghosting","telat 2 jam","bales 'terserah'","seen doang","lupa tanggal penting"];
+/* =========================================================== */
+
+const $ = id => document.getElementById(id);
+
+// Teks halaman
+$("introTeks").textContent = `Psst, ada kiriman buat ${CONFIG.nama1} & ${CONFIG.nama2}`;
+$("judul").innerHTML = `${CONFIG.nama1} <em>&amp;</em> ${CONFIG.nama2}`;
+$("sub").textContent = `3 tahun dan masih saling milih. Dari ${CONFIG.pengirim}.`;
+$("suratJudul").textContent = `Buat ${CONFIG.nama1} & ${CONFIG.nama2}`;
+$("pengirim").textContent = CONFIG.pengirim;
+$("footer").textContent = `made by love with ${CONFIG.pengirim}`;
+CONFIG.pesan.forEach(t => { const p = document.createElement("p"); p.textContent = t; $("suratIsi").appendChild(p); });
+{ const p = document.createElement("p"); p.className = "ps"; p.textContent = CONFIG.pesanSultan; $("suratIsi").appendChild(p); }
+{
+  const im = $("fotoKami"); im.src = CONFIG.fotoKami;
+  im.onerror = () => { const k = document.createElement("div"); k.className = "kosong"; k.textContent = "foto Mei & Sultan belum ada"; im.replaceWith(k); };
+}
+CONFIG.foto.forEach(f => {
+  const fig = document.createElement("figure");
+  fig.className = "foto";
+  fig.innerHTML = `<div class="bingkai"><img loading="lazy" alt="${f.caption}" src="${f.src}"><figcaption>${f.caption}</figcaption></div>`;
+  const img = fig.querySelector("img");
+  img.onerror = () => { const k = document.createElement("div"); k.className = "kosong"; k.textContent = `Foto belum ditemukan: ${f.src}`; img.replaceWith(k); };
+  $("galeri").appendChild(fig);
+});
+
+// Counter
+const mulai = new Date(CONFIG.tanggalJadian + "T00:00:00");
+$("ketCounter").textContent = `from ${mulai.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})} until foreverrrr`;
+function tick(){
+  let s = Math.max(0, Math.floor((Date.now() - mulai) / 1000));
+  const d = Math.floor(s/86400); s %= 86400;
+  const j = Math.floor(s/3600); s %= 3600;
+  $("cHari").textContent = d.toLocaleString("id-ID");
+  $("cJam").textContent = j; $("cMenit").textContent = Math.floor(s/60); $("cDetik").textContent = s % 60;
+}
+tick(); setInterval(tick, 1000);
+
+// Musik
+const lagu = $("lagu"), btnMusik = $("musik");
+lagu.src = CONFIG.lagu;
+const ikon = on => btnMusik.textContent = on ? "🎵" : "▶️";
+btnMusik.onclick = () => { if (lagu.paused) { lagu.play(); ikon(true); } else { lagu.pause(); ikon(false); } };
+
+/* ============ GAME: Green Flag Catcher ============ */
+const cv = $("cv"), ctx = cv.getContext("2d");
+let W, H, px, items, lives, skor, gagal = 0, running = false, last = 0, spawnT = 0, toastTO;
+const pw = 104, ph = 40;
+const inisial = CONFIG.nama1[0] + " ♥ " + CONFIG.nama2[0];
+
+function resize(){
+  const d = window.devicePixelRatio || 1, r = cv.getBoundingClientRect();
+  W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d,0,0,d,0,0);
+  if (px === undefined) px = W / 2;
+}
+window.addEventListener("resize", resize);
+const geser = e => { const r = cv.getBoundingClientRect(); px = Math.max(pw/2, Math.min(W - pw/2, e.clientX - r.left)); };
+cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); geser(e); });
+cv.addEventListener("pointermove", geser);
+
+function toast(t){
+  const el = $("toast"); el.textContent = t; el.classList.add("show");
+  clearTimeout(toastTO); toastTO = setTimeout(() => el.classList.remove("show"), 1100);
+}
+function hud(){
+  $("skor").textContent = `${skor}/${TARGET}`;
+  $("barIsi").style.width = Math.min(100, skor / TARGET * 100) + "%";
+  $("nyawa").textContent = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+}
+function spawn(){
+  const red = Math.random() < 0.3;
+  const list = red ? RED : GREEN;
+  items.push({ x: 24 + Math.random() * (W - 48), y: -30, red, label: list[Math.floor(Math.random() * list.length)] });
+}
+function rr(x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function loop(ts){
+  if (!running) return;
+  const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+  spawnT -= dt * 1000;
+  if (spawnT <= 0) { spawn(); spawnT = Math.max(420, 880 - skor * 40); }
+  const v = 150 + skor * 16, py = H - 64;
+  ctx.clearRect(0, 0, W, H);
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i]; it.y += v * dt;
+    if (it.y > py - 22 && it.y < py + 24 && Math.abs(it.x - px) < pw/2 + 8) {
+      items.splice(i, 1);
+      if (it.red) { lives--; toast("🚩 " + it.label); if (navigator.vibrate) navigator.vibrate(120); }
+      else { skor++; toast("💚 " + it.label); }
+      hud();
+      if (skor >= TARGET) return menang();
+      if (lives <= 0) return kalah();
+      continue;
+    }
+    if (it.y > H + 30) { items.splice(i, 1); continue; }
+    ctx.font = "34px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(it.red ? "🚩" : "💚", it.x, it.y);
+  }
+  // pemain
+  ctx.fillStyle = "#ff8fab"; rr(px - pw/2, py - ph/2, pw, ph, 20); ctx.fill();
+  ctx.fillStyle = "#2a0f1b"; ctx.font = "600 17px DM Sans, sans-serif"; ctx.fillText(inisial, px, py + 1);
+  requestAnimationFrame(loop);
+}
+function mulaiRonde(){
+  skor = 0; lives = 3; items = []; spawnT = 400; hud();
+  $("gagal").classList.remove("on"); running = true; last = performance.now();
+  requestAnimationFrame(loop);
+}
+function kalah(){
+  running = false; gagal++;
+  $("gagalTeks").textContent = gagal >= 2 ? "Red flag-nya banyak banget. Mau skip aja?" : "Yah, kena red flag 🚩 Coba lagi!";
+  $("skip").style.display = gagal >= 2 ? "block" : "none";
+  $("gagal").classList.add("on");
+}
+function menang(){
+  running = false; ctx.clearRect(0, 0, W, H); toast("Unlocked 🔓");
+  setTimeout(buka, 900);
+}
+function buka(){
+  $("intro").classList.add("open"); document.body.classList.remove("locked"); window.scrollTo(0, 0);
+  setTimeout(() => $("intro").style.display = "none", 1200);
+}
+$("ulang").onclick = mulaiRonde;
+$("skip").onclick = buka;
+
+$("seal").onclick = () => {
+  lagu.play().then(() => ikon(true)).catch(() => ikon(false));
+  btnMusik.classList.add("tampil");
+  $("bukaan").style.display = "none";
+  $("gameJudul").textContent = `Kumpulin ${TARGET} green flag 💚, hindarin red flag 🚩. Geser buat gerak.`;
+  $("game").classList.add("on");
+  resize(); mulaiRonde();
+};
+</script>
+</body>
+</html>
